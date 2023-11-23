@@ -1,0 +1,22 @@
+/* Floating placeholder styles */
+.floating-label {
+  position: relative;
+}
+
+.floating-label input {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.floating-label label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+
+.focused label {
+  font-size: 12px;
+  transform: translateY(-20px);
+}

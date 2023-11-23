@@ -1,0 +1,20 @@
+.card {
+  width: 30%;
+}
+
+.title {
+  text-align: center;
+  font-weight: bold;
+  padding: 5%;
+}
+
+.blue-background {
+  background-color: #007bff; /* Blue background color */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50vh; /* Adjust the height as needed */
+  border-bottom-left-radius: 50%; /* Adjust the curve as needed */
+  border-bottom-right-radius: 50%; /* Adjust the curve as needed */
+}
