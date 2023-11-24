@@ -1,39 +1,48 @@
 import Signup from "./components/Auth/Signup";
 import Login from "./components/Auth/Login";
-import { Route, Switch } from "react-router-dom";
-import { Suspense } from "react";
+import { Route, Switch, Redirect } from "react-router-dom";
+import { Fragment, Suspense, useContext } from "react";
 import ExpensePage from "./pages/ExpensePage";
 import Profile from "./components/Profile/Profile";
+import NavBarHeader from "./components/Navigation/NavBarHeader";
+import AuthContext from "./store/auth-context";
 
 function App() {
+  const authCtx = useContext(AuthContext);
+
   return (
-    <Switch>
-      <Route path="/" exact>
-        <Suspense fallback={<p>Loading...</p>}>
-          <Signup />
-        </Suspense>
-      </Route>
-      <Route path="/signup">
-        <Suspense fallback={<p>Loading...</p>}>
-          <Signup />
-        </Suspense>
-      </Route>
-      <Route path="/login">
-        <Suspense fallback={<p>Loading...</p>}>
-          <Login />
-        </Suspense>
-      </Route>
-      <Route path="/expense">
-        <Suspense fallback={<p>Loading...</p>}>
-          <ExpensePage />
-        </Suspense>
-      </Route>
-      <Route path="/profile">
-        <Suspense fallback={<p>Loading...</p>}>
-          <Profile />
-        </Suspense>
-      </Route>
-    </Switch>
+    <Fragment>
+      {authCtx.isLoggedIn && <NavBarHeader />}
+      <Switch>
+        <Route path="/" exact>
+          <Suspense fallback={<p>Loading...</p>}>
+            <Signup />
+          </Suspense>
+        </Route>
+        <Route path="/signup">
+          <Suspense fallback={<p>Loading...</p>}>
+            <Signup />
+          </Suspense>
+        </Route>
+        <Route path="/login">
+          <Suspense fallback={<p>Loading...</p>}>
+            <Login />
+          </Suspense>
+        </Route>
+        <Route path="/expense">
+          <Suspense fallback={<p>Loading...</p>}>
+            {authCtx.isLoggedIn && <ExpensePage />}
+            {!authCtx.isLoggedIn && <Redirect to="/login" />}
+          </Suspense>
+        </Route>
+        <Route path="/profile">
+          <Suspense fallback={<p>Loading...</p>}>
+            {authCtx.isLoggedIn && <Profile />}
+            {!authCtx.isLoggedIn && <Redirect to="/login" />}
+          </Suspense>
+        </Route>
+      </Switch>
+    </Fragment>
   );
 }
 

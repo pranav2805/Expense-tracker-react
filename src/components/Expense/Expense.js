@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import AuthContext from "../../store/auth-context";
+import classes from "./Expense.module.css";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -29,9 +30,9 @@ const Expense = (props) => {
   };
 
   return (
-    <div>
+    <div className={classes.div}>
       Welcome to Expense Tracker
-      <div style={{ textAlign: "right" }}>
+      <div style={{ textAlign: "right", color: "white" }}>
         {!isProfileUpdated && (
           <p>
             Your profile is incomplete. <Link to="/profile">Complete Now</Link>
