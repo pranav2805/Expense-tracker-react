@@ -13,8 +13,6 @@ const Profile = (props) => {
     photoUrl: "",
   });
 
-  const [initialDataLoaded, setInitialDataLoaded] = useState(false);
-
   const authCtx = useContext(AuthContext);
   const token = authCtx.token;
   useEffect(() => {
@@ -32,24 +30,31 @@ const Profile = (props) => {
     )
       .then((resp) => resp.json())
       .then((data) => {
-        if (!initialDataLoaded) {
-          console.log("data>>>", data);
-          const user = data.users[0];
-          setProfileData({
-            name: user.displayName || "",
-            photoUrl: user.photoUrl || "",
-          });
-          setInitialDataLoaded(true);
-        }
+        console.log("data>>>", data);
+        const user = data.users[0];
+        setProfileData({
+          name: user.displayName || "",
+          photoUrl: user.photoUrl || "",
+        });
       })
       .catch((err) => {
         console.error(err);
       });
-  }, []);
+  }, [token]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData((prevData) => ({ ...prevData, [name]: value }));
+  //   const handleChange = (e) => {
+  //     const { name, value } = e.target;
+  //     setProfileData((prevData) => ({ ...prevData, [name]: value }));
+  //   };
+
+  const handleNameChange = (e) => {
+    const { value } = e.target;
+    setProfileData((prevData) => ({ ...prevData, name: value }));
+  };
+
+  const handlePhotoUrlChange = (e) => {
+    const { value } = e.target;
+    setProfileData((prevData) => ({ ...prevData, photoUrl: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -68,8 +73,8 @@ const Profile = (props) => {
           },
           body: JSON.stringify({
             idToken: token,
-            displayName: nameInput,
-            photoUrl: photoInput,
+            displayName: nameInput.trim(),
+            photoUrl: photoInput.trim(),
             returnSecureToken: true,
           }),
         }
@@ -94,7 +99,7 @@ const Profile = (props) => {
               <Form.Control
                 type="text"
                 value={profileData.name}
-                onChange={handleChange}
+                onChange={handleNameChange}
               />
             </Form.Group>
             <Form.Group>
@@ -102,7 +107,7 @@ const Profile = (props) => {
               <Form.Control
                 type="text"
                 value={profileData.photoUrl}
-                onChange={handleChange}
+                onChange={handlePhotoUrlChange}
               />
             </Form.Group>
             <Button type="submit">Update</Button>
