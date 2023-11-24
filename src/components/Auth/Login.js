@@ -1,72 +1,37 @@
-import React, { useCallback, useEffect, useState } from "react";
 import { Form, Button, Card } from "react-bootstrap";
 import classes from "./Signup.module.css";
 import "./FloatingPlaceholderForm.css";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useCallback, useContext } from "react";
+import AuthContext from "../../store/auth-context";
+import { Link, useHistory } from "react-router-dom";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-const postUser = async (user) => {
-  const resp = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        email: user.email,
-        password: user.password,
-        returnSecureToken: true,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-
-  if (resp.ok) {
-    alert("user created successfully");
-  } else {
-    const data = await resp.json();
-    // console.log(data);
-    let errorMessage = "Authentication Failed!!";
-    if (data && data.error && data.error.message) {
-      errorMessage = data.error.message;
-    }
-    alert(errorMessage);
-  }
-};
-
-const Signup = () => {
+const Login = (props) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    confirmPassword: "",
   });
-
+  const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const authCtx = useContext(AuthContext);
+  const history = useHistory();
   const validateForm = useCallback(() => {
     // Add your validation logic here
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
     const isPasswordValid = formData.password.length >= 6;
-    const isConfirmPasswordValid =
-      formData.password === formData.confirmPassword;
-    // console.log("Confirm>>", formData.confirmPassword);
-    setIsValid(isEmailValid && isPasswordValid && isConfirmPasswordValid);
+    setIsValid(isEmailValid && isPasswordValid);
   }, [formData]);
-
-  const [isValid, setIsValid] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    // console.log("value>>>", value);
-    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-    // console.log("formData>>", formData);
-    // validateForm();
-  };
 
   useEffect(() => {
     validateForm();
   }, [validateForm, formData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
 
   const handleFocus = (e) => {
     e.target.parentElement.classList.add("focused");
@@ -81,13 +46,37 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      // Add your signup logic here, such as making an API request
       // console.log(formData);
       setIsLoading(true);
-      await postUser({ email: formData.email, password: formData.password });
-      setFormData({ email: "", password: "", confirmPassword: "" });
+      const resp = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            returnSecureToken: true,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await resp.json();
+      if (resp.ok) {
+        authCtx.login(data.idToken, data.email);
+        alert("Logged in successfully");
+        history.replace("/expense");
+      } else {
+        let errorMessage = "Login Failed!!";
+        if (data && data.error && data.error.message) {
+          errorMessage = data.error.message;
+        }
+        throw new Error(errorMessage);
+      }
     } catch (err) {
-      console.log(err.message);
+      console.log(err);
+      alert(err);
     }
     setIsLoading(false);
   };
@@ -96,7 +85,7 @@ const Signup = () => {
     <div className={classes["blue-background"]}>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <Card className={classes.card}>
-          <Card.Title className={classes.title}>SignUp</Card.Title>
+          <Card.Title className={classes.title}>Login</Card.Title>
           <Card.Body>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="formBasicEmail" className="floating-label">
@@ -106,11 +95,6 @@ const Signup = () => {
                   // placeholder="Email address"
                   name="email"
                   value={formData.email}
-                  // onChange={(e) => {
-                  //   handleChange(e);
-                  //   validateForm();
-                  // }
-                  // }
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
@@ -127,36 +111,11 @@ const Signup = () => {
                   // placeholder="Password"
                   name="password"
                   value={formData.password}
-                  // onChange={(e) => {
-                  //   handleChange(e);
-                  //   // validateForm();
-                  // }}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
               </Form.Group>
-
-              <Form.Group
-                controlId="formBasicConfirmPassword"
-                className="floating-label"
-              >
-                <Form.Label>Confirm Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  // placeholder="Confirm Password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  // onChange={(e) => {
-                  //   handleChange(e);
-                  //   // validateForm();
-                  // }}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </Form.Group>
-
               {!isLoading && (
                 <Button
                   variant="primary"
@@ -164,13 +123,13 @@ const Signup = () => {
                   block
                   disabled={!isValid}
                 >
-                  Sign Up
+                  Login
                 </Button>
               )}
               {isLoading && <p>Loading...</p>}
             </Form>
             <div className={classes.div}>
-              Already have an account? <Link to="/login">Login</Link>
+              Don't have an account? <Link to="/signup">Signup</Link>
             </div>
           </Card.Body>
         </Card>
@@ -179,4 +138,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;

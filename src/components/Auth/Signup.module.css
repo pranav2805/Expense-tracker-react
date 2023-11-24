@@ -1,5 +1,5 @@
 .card {
-  width: 30%;
+  width: 27%;
 }
 
 .title {
@@ -17,4 +17,9 @@
   height: 50vh; /* Adjust the height as needed */
   border-bottom-left-radius: 50%; /* Adjust the curve as needed */
   border-bottom-right-radius: 50%; /* Adjust the curve as needed */
+}
+
+.div {
+  margin-top: 5%;
+  text-align: center;
 }
