@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import AuthContext from "../../store/auth-context";
 import classes from "./Expense.module.css";
+import AddExpense from "./AddExpense";
+import ExpensesList from "./ExpensesList";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -46,6 +48,12 @@ const Expense = (props) => {
         <Button type="submit" onClick={verifyEmailHandler}>
           Verify Email
         </Button>
+      </div>
+      <div>
+        <AddExpense />
+      </div>
+      <div>
+        <ExpensesList />
       </div>
     </div>
   );
