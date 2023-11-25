@@ -6,6 +6,7 @@ import ExpensePage from "./pages/ExpensePage";
 import Profile from "./components/Profile/Profile";
 import NavBarHeader from "./components/Navigation/NavBarHeader";
 import AuthContext from "./store/auth-context";
+import ForgetPassword from "./components/Auth/ForgetPassword";
 
 function App() {
   const authCtx = useContext(AuthContext);
@@ -27,6 +28,11 @@ function App() {
         <Route path="/login">
           <Suspense fallback={<p>Loading...</p>}>
             <Login />
+          </Suspense>
+        </Route>
+        <Route path="/forgetPassword">
+          <Suspense fallback={<p>Loading...</p>}>
+            <ForgetPassword />
           </Suspense>
         </Route>
         <Route path="/expense">

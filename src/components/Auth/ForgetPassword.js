@@ -1,37 +1,25 @@
-import { Form, Button, Card } from "react-bootstrap";
+import { Card, Form, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import classes from "./Signup.module.css";
 import "./FloatingPlaceholderForm.css";
-import { useState, useEffect, useCallback, useContext } from "react";
-import AuthContext from "../../store/auth-context";
-import { Link, useHistory } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-const Login = (props) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+const ForgetPassword = (props) => {
+  const [email, setEmail] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const authCtx = useContext(AuthContext);
-  const history = useHistory();
-  const validateForm = useCallback(() => {
-    // Add your validation logic here
-    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-    const isPasswordValid = formData.password.length >= 6;
-    setIsValid(isEmailValid && isPasswordValid);
-  }, [formData]);
-
-  useEffect(() => {
-    validateForm();
-  }, [validateForm, formData]);
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+    const value = e.target.value;
+    setEmail(value);
   };
+
+  const validateEmail = useCallback(() => {
+    // Add your validation logic here
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    setIsValid(isEmailValid);
+  }, [email]);
 
   const handleFocus = (e) => {
     e.target.parentElement.classList.add("focused");
@@ -49,13 +37,12 @@ const Login = (props) => {
       // console.log(formData);
       setIsLoading(true);
       const resp = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
+        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`,
         {
           method: "POST",
           body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-            returnSecureToken: true,
+            requestType: "PASSWORD_RESET",
+            email: email,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -64,11 +51,10 @@ const Login = (props) => {
       );
       const data = await resp.json();
       if (resp.ok) {
-        authCtx.login(data.idToken, data.email);
-        alert("Logged in successfully");
-        history.replace("/expense");
+        alert("Reset password link sent to your email");
+        setIsValid(false);
       } else {
-        let errorMessage = "Login Failed!!";
+        let errorMessage = "Something went wrong!!";
         if (data && data.error && data.error.message) {
           errorMessage = data.error.message;
         }
@@ -81,11 +67,15 @@ const Login = (props) => {
     setIsLoading(false);
   };
 
+  useEffect(() => {
+    validateEmail();
+  }, [validateEmail, email]);
+
   return (
     <div className={classes["blue-background"]}>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <Card className={classes.card}>
-          <Card.Title className={classes.title}>Login</Card.Title>
+          <Card.Title className={classes.title}>Reset Password</Card.Title>
           <Card.Body>
             <Form onSubmit={handleSubmit}>
               <Form.Group controlId="formBasicEmail" className="floating-label">
@@ -94,31 +84,12 @@ const Login = (props) => {
                   type="email"
                   // placeholder="Email address"
                   name="email"
-                  value={formData.email}
+                  value={email}
                   onChange={handleChange}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 />
               </Form.Group>
-
-              <Form.Group
-                controlId="formBasicPassword"
-                className="floating-label"
-              >
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  // placeholder="Password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  onBlur={handleBlur}
-                />
-              </Form.Group>
-              <div>
-                <Link to="/forgetPassword">Forgot Password?</Link>
-              </div>
               {!isLoading && (
                 <Button
                   variant="primary"
@@ -126,14 +97,14 @@ const Login = (props) => {
                   block
                   disabled={!isValid}
                 >
-                  Login
+                  Submit
                 </Button>
               )}
               {isLoading && <p>Loading...</p>}
+              <div>
+                <Link to="/login">Go to login page</Link>
+              </div>
             </Form>
-            <div className={classes.div}>
-              Don't have an account? <Link to="/signup">Signup</Link>
-            </div>
           </Card.Body>
         </Card>
       </div>
@@ -141,4 +112,4 @@ const Login = (props) => {
   );
 };
 
-export default Login;
+export default ForgetPassword;
