@@ -1,12 +1,14 @@
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import AuthContext from "../../store/auth-context";
 import classes from "./Expense.module.css";
 import AddExpense from "./AddExpense";
 import ExpensesList from "./ExpensesList";
+import EditExpense from "./EditExpense";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
+const API = "https://expense-tracker-react-e56d7-default-rtdb.firebaseio.com/";
 
 const fetchExpenses = async () => {
   try {
@@ -29,11 +31,22 @@ const fetchExpenses = async () => {
     console.log(err);
   }
 };
-
+let expenseId;
 const Expense = (props) => {
   const isProfileUpdated = localStorage.getItem("isProfileUpdated");
   const authCtx = useContext(AuthContext);
   const [expenses, setExpenses] = useState([]);
+
+  const [showModal, setShowModal] = useState(false);
+
+  const handleEditClick = (id) => {
+    setShowModal(true);
+    expenseId = id;
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   const verifyEmailHandler = async () => {
     const token = authCtx.token;
@@ -54,6 +67,25 @@ const Expense = (props) => {
     }
   };
 
+  const removeExpense = async (expenseId) => {
+    try {
+      const resp = await fetch(`${API}expenses/${expenseId}.json`, {
+        method: "DELETE",
+      });
+      if (resp.ok) {
+        console.log("Expense deleted!!");
+        alert("Expense deleted!!");
+        // Filter out the expense with the given ID and update the state
+        const updatedExpenses = expenses.filter(
+          (expense) => expense.id !== expenseId
+        );
+        setExpenses(updatedExpenses);
+      }
+    } catch (err) {
+      console.log("Error deleting expense: ", err);
+    }
+  };
+
   useEffect(() => {
     fetchExpenses().then((expenses) => {
       setExpenses(expenses);
@@ -61,30 +93,56 @@ const Expense = (props) => {
   }, []);
 
   return (
-    <div className={classes.div}>
-      Welcome to Expense Tracker
-      <div style={{ textAlign: "right", color: "white" }}>
-        {!isProfileUpdated && (
-          <p>
-            Your profile is incomplete. <Link to="/profile">Complete Now</Link>
-          </p>
-        )}
-        {isProfileUpdated && (
-          <p>
-            <Link to="/profile">Update your profile</Link>
-          </p>
-        )}
-        <Button type="submit" onClick={verifyEmailHandler}>
-          Verify Email
-        </Button>
+    // <Modal show={showModal} onHide={handleCloseModal}>
+    //     <Modal.Header closeButton>
+    //       <Modal.Title>Edit Expense</Modal.Title>
+    //     </Modal.Header>
+    //     <Modal.Body>
+    //       {/* Pass the expenseId to the EditExpense component */}
+    //       <EditExpense expenseId={expenseId} />
+    //     </Modal.Body>
+    //     <Modal.Footer>
+    //       <Button variant="secondary" onClick={handleCloseModal}>
+    //         Close
+    //       </Button>
+    //     </Modal.Footer>
+    //   </Modal>
+    <Fragment>
+      {showModal && (
+        <EditExpense expenseId={expenseId} onHideModal={handleCloseModal} />
+      )}
+      <div className={classes.div}>
+        Welcome to Expense Tracker
+        <div style={{ textAlign: "right", color: "white" }}>
+          {!isProfileUpdated && (
+            <p>
+              <span style={{ color: "black" }}>
+                Your profile is incomplete.
+              </span>{" "}
+              <Link to="/profile">Complete Now</Link>
+            </p>
+          )}
+          {isProfileUpdated && (
+            <p>
+              <Link to="/profile">Update your profile</Link>
+            </p>
+          )}
+          <Button type="submit" onClick={verifyEmailHandler}>
+            Verify Email
+          </Button>
+        </div>
+        <div>
+          <AddExpense />
+        </div>
+        <div>
+          <ExpensesList
+            expenses={expenses}
+            removeExpense={removeExpense}
+            editExpense={handleEditClick}
+          />
+        </div>
       </div>
-      <div>
-        <AddExpense />
-      </div>
-      <div>
-        <ExpensesList expenses={expenses} />
-      </div>
-    </div>
+    </Fragment>
   );
 };
 

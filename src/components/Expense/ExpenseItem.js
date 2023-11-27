@@ -1,8 +1,12 @@
 import { Button } from "react-bootstrap";
 
 const ExpenseItem = (props) => {
-  const handleEdit = () => {};
-  const handleDelete = () => {};
+  const handleEdit = (id) => {
+    props.editExpense(id);
+  };
+  const handleDelete = (id) => {
+    props.removeExpense(id);
+  };
   return (
     <tr key={props.id} style={{ borderBottom: "1px solid #dee2e6" }}>
       <td>{props.amount}</td>

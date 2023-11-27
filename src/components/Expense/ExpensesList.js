@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Table, Container, Card } from "react-bootstrap";
 import ExpenseItem from "./ExpenseItem";
 
@@ -9,7 +9,7 @@ const ExpensesList = (props) => {
   //   { id: 2, amount: 30, desc: "Movie tickets", category: "Entertainment" },
   //   { id: 3, amount: 20, desc: "Transportation", category: "Travel" },
   // ]);
-  console.log(props.expenses);
+  // console.log(props.expenses);
   return (
     <Container className="d-flex justify-content-center align-items-center ">
       <Card style={{ width: "80%", marginTop: "3%" }}>
@@ -36,6 +36,8 @@ const ExpensesList = (props) => {
                     amount={expense.amount}
                     desc={expense.desc}
                     category={expense.category}
+                    removeExpense={props.removeExpense}
+                    editExpense={props.editExpense}
                   />
                 ))}
             </tbody>
