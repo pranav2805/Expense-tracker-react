@@ -14,6 +14,7 @@ function App() {
   return (
     <Fragment>
       {authCtx.isLoggedIn && <NavBarHeader />}
+      {authCtx.isLoggedIn && <Redirect to="/expense" />}
       <Switch>
         <Route path="/" exact>
           <Suspense fallback={<p>Loading...</p>}>

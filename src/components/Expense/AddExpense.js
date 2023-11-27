@@ -9,21 +9,44 @@ const AddExpense = (props) => {
     category: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setExpenseData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleAddExpense = (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
-    // Add logic to handle the addition of the expense (e.g., send to backend)
-    console.log("Expense Data:", expenseData);
-    // Reset form after submitting
-    setExpenseData({
-      amount: "",
-      desc: "",
-      category: "",
-    });
+    // console.log("Expense Data:", expenseData);
+    setIsLoading(true);
+    //add the new expense to the realtime firebase db
+    const resp = await fetch(
+      `https://expense-tracker-react-e56d7-default-rtdb.firebaseio.com/expenses.json`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: expenseData.amount,
+          desc: expenseData.desc,
+          category: expenseData.category,
+        }),
+      }
+    );
+    if (resp.ok) {
+      alert("Expense added successfully");
+      // Reset form after submitting
+      setExpenseData({
+        amount: "",
+        desc: "",
+        category: "",
+      });
+      setIsLoading(false);
+    } else {
+      alert("Something went wrong");
+    }
   };
 
   return (
@@ -71,6 +94,8 @@ const AddExpense = (props) => {
                     <option value="food">Food</option>
                     <option value="travel">Travel</option>
                     <option value="entertainment">Entertainment</option>
+                    <option value="fuel">Fuel</option>
+                    <option value="others">Others</option>
                     {/* Add more categories as needed */}
                   </Form.Control>
                 </Form.Group>
@@ -79,9 +104,12 @@ const AddExpense = (props) => {
 
             <Row className="mt-3">
               <Col>
-                <Button variant="primary" onClick={handleAddExpense}>
-                  Add Expense
-                </Button>
+                {!isLoading && (
+                  <Button variant="primary" onClick={handleAddExpense}>
+                    Add Expense
+                  </Button>
+                )}
+                {isLoading && <p>Adding...</p>}
               </Col>
             </Row>
           </Form>
