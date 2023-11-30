@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button, Form, Col, Container, Row, Card } from "react-bootstrap";
 import classes from "./AddExpense.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { expenseActions } from "../../store/expense";
 
 const AddExpense = (props) => {
   const [expenseData, setExpenseData] = useState({
@@ -8,6 +10,8 @@ const AddExpense = (props) => {
     desc: "",
     category: "",
   });
+
+  const dispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,17 +40,27 @@ const AddExpense = (props) => {
       }
     );
     if (resp.ok) {
+      const data = await resp.json();
+      //   console.log(data);
       alert("Expense added successfully");
+      dispatch(
+        expenseActions.addExpense({
+          id: data.name,
+          amount: expenseData.amount,
+          desc: expenseData.desc,
+          category: expenseData.category,
+        })
+      );
       // Reset form after submitting
       setExpenseData({
         amount: "",
         desc: "",
         category: "",
       });
-      setIsLoading(false);
     } else {
       alert("Something went wrong");
     }
+    setIsLoading(false);
   };
 
   return (

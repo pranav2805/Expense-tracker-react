@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Container, Modal } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { expenseActions } from "../../store/expense";
 
 const API = "https://expense-tracker-react-e56d7-default-rtdb.firebaseio.com/";
 
@@ -10,11 +12,14 @@ const EditExpense = (props) => {
     category: "",
   });
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     // Fetch existing expense data when the component mounts
     fetch(`${API}expenses/${props.expenseId}.json`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("data>>>", data);
         setExpenseData({
           amount: data.amount,
           desc: data.desc,
@@ -44,6 +49,12 @@ const EditExpense = (props) => {
           // Handle successful update
           console.log("Expense updated successfully");
           alert("Expense has been updated successfully");
+          dispatch(
+            expenseActions.editExpense({
+              id: props.expenseId,
+              updatedData: { ...expenseData, id: props.expenseId },
+            })
+          );
           props.onHideModal();
         } else {
           // Handle update failure

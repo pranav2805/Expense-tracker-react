@@ -1,11 +1,12 @@
 import { Fragment, useContext, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { Button, Modal } from "react-bootstrap";
-import AuthContext from "../../store/auth-context";
+import { Button } from "react-bootstrap";
 import classes from "./Expense.module.css";
 import AddExpense from "./AddExpense";
 import ExpensesList from "./ExpensesList";
 import EditExpense from "./EditExpense";
+import { expenseActions } from "../../store/expense";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 const API = "https://expense-tracker-react-e56d7-default-rtdb.firebaseio.com/";
@@ -34,8 +35,11 @@ const fetchExpenses = async () => {
 let expenseId;
 const Expense = (props) => {
   const isProfileUpdated = localStorage.getItem("isProfileUpdated");
-  const authCtx = useContext(AuthContext);
-  const [expenses, setExpenses] = useState([]);
+  //   const authCtx = useContext(AuthContext);
+  const expenses = useSelector((state) => state.expense.expenses);
+  console.log("expenses>>", expenses);
+  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
 
@@ -49,7 +53,6 @@ const Expense = (props) => {
   };
 
   const verifyEmailHandler = async () => {
-    const token = authCtx.token;
     const resp = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`,
       {
@@ -76,37 +79,24 @@ const Expense = (props) => {
         console.log("Expense deleted!!");
         alert("Expense deleted!!");
         // Filter out the expense with the given ID and update the state
-        const updatedExpenses = expenses.filter(
-          (expense) => expense.id !== expenseId
-        );
-        setExpenses(updatedExpenses);
+        // const updatedExpenses = expenses.filter(
+        //   (expense) => expense.id !== expenseId
+        // );
+        // setExpenses(updatedExpenses);
+        dispatch(expenseActions.deleteExpense(expenseId));
       }
     } catch (err) {
       console.log("Error deleting expense: ", err);
     }
   };
 
-  useEffect(() => {
-    fetchExpenses().then((expenses) => {
-      setExpenses(expenses);
-    });
-  }, []);
+  //   useEffect(() => {
+  //     fetchExpenses().then((expenses) => {
+  //       setExpenses(expenses);
+  //     });
+  //   }, []);
 
   return (
-    // <Modal show={showModal} onHide={handleCloseModal}>
-    //     <Modal.Header closeButton>
-    //       <Modal.Title>Edit Expense</Modal.Title>
-    //     </Modal.Header>
-    //     <Modal.Body>
-    //       {/* Pass the expenseId to the EditExpense component */}
-    //       <EditExpense expenseId={expenseId} />
-    //     </Modal.Body>
-    //     <Modal.Footer>
-    //       <Button variant="secondary" onClick={handleCloseModal}>
-    //         Close
-    //       </Button>
-    //     </Modal.Footer>
-    //   </Modal>
     <Fragment>
       {showModal && (
         <EditExpense expenseId={expenseId} onHideModal={handleCloseModal} />

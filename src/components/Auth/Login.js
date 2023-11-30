@@ -1,9 +1,11 @@
 import { Form, Button, Card } from "react-bootstrap";
 import classes from "./Signup.module.css";
 import "./FloatingPlaceholderForm.css";
-import { useState, useEffect, useCallback, useContext } from "react";
-import AuthContext from "../../store/auth-context";
+import { useState, useEffect, useCallback } from "react";
+// import AuthContext from "../../store/auth-context";
 import { Link, useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { authActions } from "../../store/auth";
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
@@ -15,7 +17,8 @@ const Login = (props) => {
   const [isValid, setIsValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const authCtx = useContext(AuthContext);
+  // const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
   const history = useHistory();
   const validateForm = useCallback(() => {
     // Add your validation logic here
@@ -64,7 +67,8 @@ const Login = (props) => {
       );
       const data = await resp.json();
       if (resp.ok) {
-        authCtx.login(data.idToken, data.email);
+        // authCtx.login(data.idToken, data.email);
+        dispatch(authActions.login(data.idToken));
         alert("Logged in successfully");
         history.replace("/expense");
       } else {

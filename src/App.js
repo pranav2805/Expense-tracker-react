@@ -6,15 +6,19 @@ import ExpensePage from "./pages/ExpensePage";
 import Profile from "./components/Profile/Profile";
 import NavBarHeader from "./components/Navigation/NavBarHeader";
 import AuthContext from "./store/auth-context";
+import { useSelector } from "react-redux";
 import ForgetPassword from "./components/Auth/ForgetPassword";
 
 function App() {
-  const authCtx = useContext(AuthContext);
-
+  // const authCtx = useContext(AuthContext);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  console.log("isloggedin>>", isLoggedIn);
+  const total = useSelector((state) => state.expense.total);
+  console.log("total>>>", total);
   return (
     <Fragment>
-      {authCtx.isLoggedIn && <NavBarHeader />}
-      {authCtx.isLoggedIn && <Redirect to="/expense" />}
+      {isLoggedIn && <NavBarHeader />}
+      {isLoggedIn && <Redirect to="/expense" />}
       <Switch>
         <Route path="/" exact>
           <Suspense fallback={<p>Loading...</p>}>
@@ -38,14 +42,14 @@ function App() {
         </Route>
         <Route path="/expense">
           <Suspense fallback={<p>Loading...</p>}>
-            {authCtx.isLoggedIn && <ExpensePage />}
-            {!authCtx.isLoggedIn && <Redirect to="/login" />}
+            {isLoggedIn && <ExpensePage />}
+            {!isLoggedIn && <Redirect to="/login" />}
           </Suspense>
         </Route>
         <Route path="/profile">
           <Suspense fallback={<p>Loading...</p>}>
-            {authCtx.isLoggedIn && <Profile />}
-            {!authCtx.isLoggedIn && <Redirect to="/login" />}
+            {isLoggedIn && <Profile />}
+            {!isLoggedIn && <Redirect to="/login" />}
           </Suspense>
         </Route>
       </Switch>

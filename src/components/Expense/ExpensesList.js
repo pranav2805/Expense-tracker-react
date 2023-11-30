@@ -16,7 +16,7 @@ const ExpensesList = (props) => {
         <Card.Body>
           <Table borderless hover>
             <thead>
-              <tr style={{ borderBottom: "1px solid #dee2e6" }}>
+              <tr key="header" style={{ borderBottom: "1px solid #dee2e6" }}>
                 <th>Amount</th>
                 <th>Description</th>
                 <th>Category</th>
