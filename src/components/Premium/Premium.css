@@ -1,0 +1,11 @@
+/* styles.css */
+.dark-theme {
+  background-color: #333;
+  color: #fff;
+  height: 100%;
+}
+
+.light-theme {
+  background-color: #fff;
+  color: #333;
+}

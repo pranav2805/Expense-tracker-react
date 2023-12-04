@@ -8,17 +8,19 @@ import NavBarHeader from "./components/Navigation/NavBarHeader";
 import AuthContext from "./store/auth-context";
 import { useSelector } from "react-redux";
 import ForgetPassword from "./components/Auth/ForgetPassword";
+import Premium from "./components/Premium/Premium";
 
 function App() {
   // const authCtx = useContext(AuthContext);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  console.log("isloggedin>>", isLoggedIn);
+  // console.log("isloggedin>>", isLoggedIn);
   const total = useSelector((state) => state.expense.total);
-  console.log("total>>>", total);
+  // console.log("total>>>", total);
+  const isDarkTheme = useSelector((state) => state.theme.isDarkTheme);
   return (
-    <Fragment>
+    <div className={isDarkTheme ? "dark-theme" : "light-theme"}>
       {isLoggedIn && <NavBarHeader />}
-      {isLoggedIn && <Redirect to="/expense" />}
+      {/* {isLoggedIn && <Redirect to="/expense" />} */}
       <Switch>
         <Route path="/" exact>
           <Suspense fallback={<p>Loading...</p>}>
@@ -52,8 +54,14 @@ function App() {
             {!isLoggedIn && <Redirect to="/login" />}
           </Suspense>
         </Route>
+        <Route path="/premium">
+          <Suspense fallback={<p>Loading...</p>}>
+            {isLoggedIn && <Premium />}
+            {!isLoggedIn && <Redirect to="/login" />}
+          </Suspense>
+        </Route>
       </Switch>
-    </Fragment>
+    </div>
   );
 }
 

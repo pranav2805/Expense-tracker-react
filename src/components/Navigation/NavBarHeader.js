@@ -15,6 +15,11 @@ const NavBarHeader = () => {
     dispatch(authActions.logout());
     history.replace("/login");
   };
+
+  const premiumHandler = () => {
+    history.replace("/premium");
+  };
+
   return (
     <Navbar expand="lg" bg="dark" variant="dark" fixed="top">
       <Container>
@@ -26,7 +31,7 @@ const NavBarHeader = () => {
         )}
         {isLoggedIn && activatePremium && (
           <div>
-            <Button>Activate Premium</Button>
+            <Button onClick={premiumHandler}>Activate Premium</Button>
           </div>
         )}
       </Container>
